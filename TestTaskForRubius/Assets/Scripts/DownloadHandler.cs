@@ -19,6 +19,13 @@ public class DownloadHandler : MonoBehaviour
     
     public async Task Load(string url, int typeDownload)
     {
+        for (int i = 0; i < _cards.Count; i++)
+        {
+            _tasks.Add(_cards[i].HideContent());
+        }
+        await WaitAllAndClear(_tasks);
+        
+        source = new CancellationTokenSource();
         switch (typeDownload)
         {
             case 0:
@@ -46,27 +53,50 @@ public class DownloadHandler : MonoBehaviour
 
     public void CancelLoad()
     {
-        
+        source.Cancel();
     }
 
     private async Task LoadAllAtOnce(string url)
     {
-        
+        for (int i = 0; i < _cards.Count; i++)
+        {
+            _tasks.Add(GetTexture(url, _cards[i])); 
+        }
+        await WaitAllAndClear(_tasks);
+            
+        for (int i = 0; i < _cards.Count; i++)
+        {
+            _tasks.Add(_cards[i].ShowContent());
+        }
+        await WaitAllAndClear(_tasks);
     }
     
     private async Task LoadOneByOne(string url)
     {
-        
+        for (int i = _cards.Count - 1; i >= 0 ; i--)
+        {
+            await GetTexture(url, _cards[i]); 
+            
+            _tasks.Add(_cards[i].ShowContent());
+        }
+        await WaitAllAndClear(_tasks);
     }
 
     private async Task LoadWhenReady(string url)
     {
-        
+        for (int i = 0; i < _cards.Count; i++)
+        {
+            _tasks.Add(LoadWhenReadyOne(url,_cards[i])); 
+        }
+
+        await WaitAllAndClear(_tasks);
     }
 
     private async Task LoadWhenReadyOne(string url,Card card)
     {
-       
+        await GetTexture(url, card); 
+        
+        await card.ShowContent();
     }
     
     private async Task GetTexture(string url,Card card)
@@ -77,5 +107,12 @@ public class DownloadHandler : MonoBehaviour
         {
             card.SetTexture(DownloadHandlerTexture.GetContent(request));
         }
+    }
+
+    private async Task WaitAllAndClear(List<Task> tasks)
+    {
+        await Task.WhenAll(tasks);
+                
+        _tasks.Clear();
     }
 }
