@@ -102,9 +102,6 @@ public class DownloadHandler : MonoBehaviour
     
     private async Task GetTexture(string url,Card card, CancellationToken token)
     {
-        card.SetTexture(null);
-        Resources.UnloadUnusedAssets();
-        
         using UnityWebRequest request = UnityWebRequestTexture.GetTexture(url);
         try
         {
@@ -119,7 +116,8 @@ public class DownloadHandler : MonoBehaviour
         }
         if (request.result == UnityWebRequest.Result.Success)
         {
-            card.SetTexture(DownloadHandlerTexture.GetContent(request));
+            Destroy(card.Texture2D);
+            card.Texture2D = DownloadHandlerTexture.GetContent(request);
         }
     }
 
