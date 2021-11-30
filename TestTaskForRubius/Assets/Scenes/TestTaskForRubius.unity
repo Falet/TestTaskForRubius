@@ -728,7 +728,7 @@ MonoBehaviour:
   cancelBtn: {fileID: 434881194}
   horizontalLayoutGroup: {fileID: 1149386297}
   downloadHandler: {fileID: 815795383}
-  prefabCard: {fileID: 5483085824520737742, guid: 286997021aa2a914cb4045e5af724fcc, type: 3}
+  prefabCard: {fileID: 484602418037525527, guid: 286997021aa2a914cb4045e5af724fcc, type: 3}
   countCard: 6
   url: https://picsum.photos/200/300?random
 --- !u!1 &688362731
@@ -1942,7 +1942,7 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1998431050}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
