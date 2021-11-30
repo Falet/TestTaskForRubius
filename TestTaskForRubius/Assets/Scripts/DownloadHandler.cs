@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -30,22 +31,22 @@ public class DownloadHandler : MonoBehaviour
         {
             case 0:
             {
-                await LoadAllAtOnce(url);
+                await LoadAllAtOnce(url,source.Token);
                 break;
             }
             case 1:
             {
-                await LoadOneByOne(url);
+                await LoadOneByOne(url, source.Token);
                 break;
             }
             case 2:
             {
-                await LoadWhenReady(url);
+                await LoadWhenReady(url, source.Token);
                 break;
             }
             default:
             {
-                await LoadAllAtOnce(url);
+                await LoadAllAtOnce(url,source.Token);
                 break;
             }
         }
@@ -56,11 +57,11 @@ public class DownloadHandler : MonoBehaviour
         source.Cancel();
     }
 
-    private async Task LoadAllAtOnce(string url)
+    private async Task LoadAllAtOnce(string url, CancellationToken token)
     {
         for (int i = 0; i < _cards.Count; i++)
         {
-            _tasks.Add(GetTexture(url, _cards[i])); 
+            _tasks.Add(GetTexture(url, _cards[i], token)); 
         }
         await WaitAllAndClear(_tasks);
             
@@ -71,38 +72,48 @@ public class DownloadHandler : MonoBehaviour
         await WaitAllAndClear(_tasks);
     }
     
-    private async Task LoadOneByOne(string url)
+    private async Task LoadOneByOne(string url, CancellationToken token)
     {
         for (int i = _cards.Count - 1; i >= 0 ; i--)
         {
-            await GetTexture(url, _cards[i]); 
+            await GetTexture(url, _cards[i], token); 
             
             _tasks.Add(_cards[i].ShowContent());
         }
         await WaitAllAndClear(_tasks);
     }
 
-    private async Task LoadWhenReady(string url)
+    private async Task LoadWhenReady(string url, CancellationToken token)
     {
         for (int i = 0; i < _cards.Count; i++)
         {
-            _tasks.Add(LoadWhenReadyOne(url,_cards[i])); 
+            _tasks.Add(LoadWhenReadyOne(url,_cards[i],token)); 
         }
 
         await WaitAllAndClear(_tasks);
     }
 
-    private async Task LoadWhenReadyOne(string url,Card card)
+    private async Task LoadWhenReadyOne(string url,Card card, CancellationToken token)
     {
-        await GetTexture(url, card); 
+        await GetTexture(url, card, token); 
         
         await card.ShowContent();
     }
     
-    private async Task GetTexture(string url,Card card)
+    private async Task GetTexture(string url,Card card, CancellationToken token)
     {
         UnityWebRequest request = UnityWebRequestTexture.GetTexture(url);
-        await request.SendWebRequest();
+        try
+        {
+            await request.SendWebRequest().WithCancellation(token);
+        }
+        catch (Exception e)
+        {
+            if (e is OperationCanceledException)
+            {
+                //TODO download cancel
+            }
+        }
         if (request.result == UnityWebRequest.Result.Success)
         {
             card.SetTexture(DownloadHandlerTexture.GetContent(request));
