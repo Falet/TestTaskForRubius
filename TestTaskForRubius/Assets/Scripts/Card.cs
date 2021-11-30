@@ -6,57 +6,53 @@ using UnityEngine.UI;
 
 public class Card : MonoBehaviour
 {
-    [SerializeField] private Image mask;
+    public Texture Texture2D
+    {
+        get => content.texture;
+        set => content.texture = value;
+    }
+    
     [SerializeField] private RawImage content;
-    [SerializeField] private Image front;
     [SerializeField] private Image back;
-    [SerializeField] private TMP_Text text;
     [SerializeField] private float flipDurationShow;
     [SerializeField] private float flipDurationHide;
+    [SerializeField] private Canvas canvas;
     
-    private bool IsHide;
+    private bool _isHide;
     
     private void Awake()
     {
         ChangeVisibilityFront(false);
-        IsHide = true;
-    }
-
-    public void SetTexture(Texture2D texture)
-    {
-        content.texture = texture;
+        _isHide = true;
     }
 
     public async Task ShowContent()
     {
-        if(IsHide)
+        if(_isHide)
         {
             await transform.DORotate(new Vector3(0, 90, 0), flipDurationShow).AsyncWaitForCompletion();
             ChangeVisibilityBack(false);
             ChangeVisibilityFront(true);
             await transform.DORotate(new Vector3(0, 0, 0), flipDurationShow).AsyncWaitForCompletion();
-            IsHide = false;
+            _isHide = false;
         }
     }
 
     public async Task HideContent()
     {
-        if(IsHide == false)
+        if(_isHide == false)
         {
             await transform.DORotate(new Vector3(0, 90, 0), flipDurationHide).AsyncWaitForCompletion();
             ChangeVisibilityFront(false);
             ChangeVisibilityBack(true);
             await transform.DORotate(new Vector3(0, 0, 0), flipDurationHide).AsyncWaitForCompletion();
-            IsHide = true;
+            _isHide = true;
         }
     }
 
     private void ChangeVisibilityFront(bool isActivate)
     {
-        front.enabled = isActivate;
-        content.enabled = isActivate;
-        mask.enabled = isActivate;
-        text.enabled = isActivate;
+        canvas.enabled = isActivate;
     }
 
     private void ChangeVisibilityBack(bool isActivate)
